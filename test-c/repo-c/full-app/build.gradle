@@ -1,0 +1,15 @@
+plugins {
+    id 'idea'
+}
+
+group = "io.gofannon.gradle_large_project"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+}
+
+
+wrapper {
+    gradleVersion = '7.6'
+}

@@ -1,0 +1,35 @@
+plugins {
+    id 'idea'
+    id 'application'
+}
+
+group = "io.gofannon.gradle_large_project"
+version = "1.0-SNAPSHOT"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    maven {
+        url = uri("${buildDir}/../../../publishing-repository")
+    }
+    mavenCentral()
+}
+
+application {
+    mainClass='io.gofannon.application.HelloApp'
+}
+
+dependencies {
+    implementation "io.gofannon.gradle_large_project:hello-service:1.0-SNAPSHOT"
+    implementation "io.gofannon.gradle_large_project:person-provider:1.0-SNAPSHOT"
+}
+
+
+wrapper {
+    gradleVersion = '7.6'
+}
+
+

@@ -1,0 +1,2 @@
+includeBuild("../../repo-b/hello-service")
+includeBuild("../../repo-b/person-provider")
