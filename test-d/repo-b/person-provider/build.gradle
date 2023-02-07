@@ -1,0 +1,47 @@
+plugins {
+    id 'idea'
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group = "io.gofannon.gradle_large_project"
+version = "1.0-SNAPSHOT"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    maven {
+        url = uri("${buildDir}/../../../publishing-repository")
+    }
+    mavenCentral()
+}
+
+dependencies {
+    implementation "io.gofannon.gradle_large_project:license-provider:1.0-SNAPSHOT"
+}
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = uri("${buildDir}/../../../publishing-repository")
+        }
+    }
+}
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+wrapper {
+    gradleVersion = '7.6'
+}
+
+

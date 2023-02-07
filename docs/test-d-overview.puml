@@ -1,0 +1,9 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+[hello-app] --> [hello-service]
+[hello-app] --> [person-provider]
+[hello-service] --> [license-provider]
+[person-provider] --> [license-provider]
+
+@enduml

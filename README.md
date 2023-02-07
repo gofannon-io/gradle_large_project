@@ -1,7 +1,7 @@
 # La directive includeBuild de Gradle
 
 ## Objectif
-L'objectif est d'étudier la directive includeBuild de Gradle dans l'objectif de pouvoir gérer une  application composée de multiples projets sur des dépêts distincts au sein de la même instance de l'IDE.
+L'objectif est d'étudier la directive includeBuild de Gradle dans l'objectif de pouvoir gérer une application composée de multiples projets sur des dépôts distincts au sein de la même instance de l'IDE.
 Outre la simplification de l'usage de l'IDE, cela aiderait au débogage (Accès au code source au lieu du code décompilé) et permet d'exécuter le code sans besoin d'une publication des projets des autres dépôts.
 
 La directive includeBuild ne remplace pas l'usage de *dependencies{}*.
@@ -30,7 +30,7 @@ Ces projets sont répartis dans deux dépôts distincts :
 
 Chaque projet contient des fichiers *settings.gradle* (vides) et *build.gradle*.
 Les dépendances sont déclarées dans le *build.gradle* de **hello-app** :
-```gradle
+```groovy
 dependencies {
     implementation "io.gofannon.gradle_large_project:hello-service:1.0-SNAPSHOT"
     implementation "io.gofannon.gradle_large_project:person-provider:1.0-SNAPSHOT"
@@ -58,7 +58,7 @@ Ainsi lorsque **hello-app** est "buildé" et "exécutée", ce seront les sources
 sur le contenu d'un dépôt d'artefact intermédiaire
 
 Pour cela, il faut mettre à jour le fichier *settings.gradle* de **hello-app** de la manière suivante :
-```gradle
+```groovy
 includeBuild("../../repo-b/hello-service")
 includeBuild("../../repo-b/person-provider")
 ```
@@ -99,7 +99,7 @@ des projets désirés.
 Ce projet racine, appelé **full-app** dans notre exemple, est situé à part, dans un dépôt Git distinct des autres.
 
 Son fichier *build.gradle* est minimale :
-```gradle
+```groovy
 plugins {
     id 'idea'
 }
@@ -117,7 +117,7 @@ wrapper {
 ```
 
 Et son fichier *settings.gradle* contient la liste des includeBuild désirés :
-```gradle
+```groovy
 includeBuild("../../repo-b/hello-service")
 includeBuild("../../repo-b/person-provider")
 includeBuild("../../repo-a/hello-app")
@@ -129,6 +129,38 @@ Cette approche est adaptative, il suffit de déclarer uniquement les includeBuil
 ou debugger.  
 
 Le code source est disponible ici : [test-c](./test-c)
+
+
+
+## Test D : cas d'une dépendance transitive commune
+
+Ce projet est un test du cas d'une dépendance partagée entre deux projets afin d'en vérifier le comportement.
+
+Le projet **license-provider**, du nouveau dépôt **depot-d** est ajouté.
+
+![Dépendances entre projets](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/gofannon-io/gradle_large_project/master/docs/test-d-overview.puml)
+
+La dépendance **license-provider** est rajoutée à **hello-service** et **person-provider**.
+Et une méthode *getLicense()* est ajoutée dans chaque dépendance.
+Ces méthodes sont appelées par **hello-app**.
+
+Le premier essai est effectué avec un projet **license-provider** qui est tiré par les autres via le lien "dependency" et sans utilisation de *includeBuild*.
+Ce premier test fonctionne parfaitement et le résultat est conforme au contenu de **license-provider**.
+
+Puis une directive *includeBuild* est rajoutée à **full-app** afin d'inclure le projet **license-provider** :
+```groovy
+includeBuild("../../repo-b/hello-service")
+includeBuild("../../repo-b/person-provider")
+includeBuild("../../repo-a/hello-app")
+includeBuild("../../repo-d/license-provider")
+```
+
+Une modification est effectuée dans **license-provider** afin de distinguer l'instance de l'artefact publiée dans le dépôt d'artefact et celle issue des sources non publiées.
+
+Le second test est effectué et il fonctionne parfaitement.
+Le résultat contient bien la modification effectuée dans le code source et non publié.
+
+Donc le cas d'une dépendance transitive partagée fonctionne bien.
 
 
 
