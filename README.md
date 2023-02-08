@@ -162,6 +162,8 @@ Le résultat contient bien la modification effectuée dans le code source et non
 
 Donc le cas d'une dépendance transitive partagée fonctionne bien.
 
+Le code source est disponible ici : [test-d](./test-d)
+
 
 
 ## Conclusion
