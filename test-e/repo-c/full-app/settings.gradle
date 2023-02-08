@@ -1,0 +1,5 @@
+includeBuild("../../repo-b/hello-service")
+includeBuild("../../repo-b/person-provider")
+includeBuild("../../repo-a/hello-app")
+includeBuild("../../repo-d/license-provider")
+includeBuild("../../repo-e/hello-platform")

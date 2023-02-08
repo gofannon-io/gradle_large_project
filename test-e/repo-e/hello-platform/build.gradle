@@ -1,0 +1,42 @@
+plugins {
+    id 'idea'
+    id 'java-platform'
+    id 'maven-publish'
+}
+
+group = "io.gofannon.gradle_large_project"
+version = "1.0-SNAPSHOT"
+
+
+repositories {
+    maven {
+        url = uri("${buildDir}/../../../publishing-repository")
+    }
+    mavenCentral()
+}
+
+dependencies {
+    constraints {
+        api "io.gofannon.gradle_large_project:hello-service:1.0-SNAPSHOT"
+        api "io.gofannon.gradle_large_project:person-provider:1.0-SNAPSHOT"
+        api "io.gofannon.gradle_large_project:license-provider:1.0-SNAPSHOT"
+    }
+}
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.javaPlatform
+        }
+    }
+    repositories {
+        maven {
+            url = uri("${buildDir}/../../../publishing-repository")
+        }
+    }
+}
+
+wrapper {
+    gradleVersion = '7.6'
+}

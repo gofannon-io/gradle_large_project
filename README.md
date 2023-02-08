@@ -160,9 +160,129 @@ Une modification est effectuée dans **license-provider** afin de distinguer l'i
 Le second test est effectué et il fonctionne parfaitement.
 Le résultat contient bien la modification effectuée dans le code source et non publié.
 
-Donc le cas d'une dépendance transitive partagée fonctionne bien.
+Donc l'usage d'une dépendance transitive partagée n'interfère pas dans avec la directive *includeBuild*.
 
 Le code source est disponible ici : [test-d](./test-d)
+
+
+
+
+## Test E : utilisation d'une java-platform
+
+Ce projet est un test du test D combiné avec l'usage d'un plugin de gestion centralisé de version ([java-platform](https://docs.gradle.org/current/userguide/java_platform_plugin.html))
+afin de vérifier que l'utilisation de ce plugin n'interfère pas avec la directive *includeBuild*.
+
+Un projet **hello-platform** de type *java-platform* est créé dans le dépôt *repo-e*.
+Dans le *build.xml* de **hello-platform** sont déclarés toutes les librairies :
+```groovy
+plugins {
+    id 'idea'
+    id 'java-platform'
+    id 'maven-publish'
+}
+
+group = "io.gofannon.gradle_large_project"
+version = "1.0-SNAPSHOT"
+
+
+repositories {
+    maven {
+        url = uri("${buildDir}/../../../publishing-repository")
+    }
+    mavenCentral()
+}
+
+dependencies {
+    constraints {
+        api "io.gofannon.gradle_large_project:hello-service:1.0-SNAPSHOT"
+        api "io.gofannon.gradle_large_project:person-provider:1.0-SNAPSHOT"
+        api "io.gofannon.gradle_large_project:license-provider:1.0-SNAPSHOT"
+    }
+}
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.javaPlatform
+        }
+    }
+    repositories {
+        maven {
+            url = uri("${buildDir}/../../../publishing-repository")
+        }
+    }
+}
+
+wrapper {
+    gradleVersion = '7.6'
+}
+```
+
+Puis, dans chaque *build.gradle* des projets, la dépendance vers **hello-platform** est ajoutée. 
+Par exemple, le fichier *build.gradle* pour le projet **hello-service** :
+```groovy
+plugins {
+    id 'idea'
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group = "io.gofannon.gradle_large_project"
+version = "1.0-SNAPSHOT"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    maven {
+        url = uri("${buildDir}/../../../publishing-repository")
+    }
+    mavenCentral()
+}
+
+dependencies {
+    api platform( "io.gofannon.gradle_large_project:hello-platform:1.0-SNAPSHOT")
+
+    api "io.gofannon.gradle_large_project:license-provider"
+}
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = uri("${buildDir}/../../../publishing-repository")
+        }
+    }
+}
+
+wrapper {
+    gradleVersion = '7.6'
+}
+```
+
+Dans le fichier *settings.gradle* du projet **full-app**, la directive *includeBuild* vers **hello-platform**
+est rajoutée :
+```groovy
+includeBuild("../../repo-b/hello-service")
+includeBuild("../../repo-b/person-provider")
+includeBuild("../../repo-a/hello-app")
+includeBuild("../../repo-d/license-provider")
+includeBuild("../../repo-e/hello-platform")
+```
+
+Les deux tests décrits dans test-d sont passés avec succès.
+
+Donc l'usage de plugin **java-platform** n'interfère pas avec la directive *includeBuild*.
+
+Le code source est disponible ici : [test-e](./test-e)
 
 
 
